@@ -1,6 +1,7 @@
 package com.me.interview.models;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -30,6 +31,7 @@ public class Customer {
   private Date birthdate;
 
   public Customer(CustomerRequest request) {
+    TimeZone.setDefault(TimeZone.getTimeZone("BRT"));
     this.name = request.getName();
     this.gender = request.getGender();
     this.age = request.getAge();

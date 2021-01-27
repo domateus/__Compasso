@@ -4,6 +4,7 @@ import com.me.interview.models.City;
 import com.me.interview.models.States;
 import com.me.interview.repositories.CityRepository;
 import com.me.interview.requests.CityRequest;
+import com.me.interview.response.CityResponse;
 import com.me.interview.response.DeleteResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,37 +29,37 @@ public class CityController {
   private CityRepository repository;
 
   @GetMapping
-  public Page<City> list(@PageableDefault(sort = "name") Pageable pagination,
+  public Page<CityResponse> list(@PageableDefault(sort = "name") Pageable pagination,
       @RequestParam(required = false) String name, @RequestParam(required = false) States UF) {
     if (name == null && UF == null) {
       Page<City> cities = repository.findAll(pagination);
-      return cities;
+      return CityResponse.convert(cities);
     } else if (name != null) {
       Page<City> cities = repository.findAllByName(name, pagination);
-      return cities;
+      return CityResponse.convert(cities);
     } else {
       Page<City> cities = repository.findAllByUF(UF, pagination);
-      return cities;
+      return CityResponse.convert(cities);
     }
 
   }
 
   @PostMapping
-  public City create(@RequestBody CityRequest request) {
+  public CityResponse create(@RequestBody CityRequest request) {
     City city = new City(request);
     this.repository.save(city);
-    return city;
+    return new CityResponse(city);
   }
 
   @PutMapping("/{id}")
-  public City update(@PathVariable Long id, @RequestBody CityRequest request) {
+  public CityResponse update(@PathVariable Long id, @RequestBody CityRequest request) {
     City city = this.repository.findById(id).get();
     city.setUF(request.getUF());
     city.setName(request.getName());
 
     this.repository.save(city);
 
-    return city;
+    return new CityResponse(city);
   }
 
   @DeleteMapping("/{id}")

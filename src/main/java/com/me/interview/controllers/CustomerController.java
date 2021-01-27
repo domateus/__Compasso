@@ -5,6 +5,7 @@ import com.me.interview.models.Customer;
 import com.me.interview.repositories.CityRepository;
 import com.me.interview.repositories.CustomerRepository;
 import com.me.interview.requests.CustomerRequest;
+import com.me.interview.response.CustomerResponse;
 import com.me.interview.response.DeleteResponse;
 import com.me.interview.requests.CustomerRequest;
 
@@ -33,36 +34,36 @@ public class CustomerController {
   private CityRepository cityRepository;
 
   @GetMapping
-  public Page<Customer> list(@PageableDefault(sort = "name") Pageable pagination,
+  public Page<CustomerResponse> list(@PageableDefault(sort = "name") Pageable pagination,
       @RequestParam(required = false) String name, @RequestParam(required = false) Long id) {
     if (name == null && id == null) {
-      return customerRepository.findAndFetchAll(pagination);
+      return CustomerResponse.convert(customerRepository.findAndFetchAll(pagination));
     } else if (name != null) {
-      return customerRepository.findAndFetchAllByName(name, pagination);
+      return CustomerResponse.convert(customerRepository.findAndFetchAllByName(name, pagination));
     } else {
-      return customerRepository.findAndFetchAllById(id, pagination);
+      return CustomerResponse.convert(customerRepository.findAndFetchAllById(id, pagination));
     }
   }
 
   @PostMapping
-  public Customer create(@RequestBody CustomerRequest request) {
+  public CustomerResponse create(@RequestBody CustomerRequest request) {
     Customer customer = new Customer(request);
     City city = cityRepository.findById(request.getCity()).get();
     customer.setCity(city);
     customerRepository.save(customer);
 
-    return customer;
+    return new CustomerResponse(customer);
   }
 
   @PutMapping("/{id}")
-  public Customer update(@RequestBody CustomerRequest request, @PathVariable Long id) {
+  public CustomerResponse update(@RequestBody CustomerRequest request, @PathVariable Long id) {
     Customer customer = customerRepository.findAndFetchById(id);
     City city = cityRepository.findById(request.getCity()).get();
     customer.setCity(city);
     customer = request.update(customer);
     customerRepository.save(customer);
 
-    return customer;
+    return new CustomerResponse(customer);
   }
 
   @DeleteMapping("/{id}")
