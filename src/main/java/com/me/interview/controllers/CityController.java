@@ -1,11 +1,10 @@
 package com.me.interview.controllers;
 
-import com.me.interview.models.City;
 import com.me.interview.models.States;
-import com.me.interview.repositories.CityRepository;
 import com.me.interview.requests.CityRequest;
 import com.me.interview.response.CityResponse;
 import com.me.interview.response.DeleteResponse;
+import com.me.interview.services.CityService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,49 +25,27 @@ import org.springframework.web.bind.annotation.RestController;
 public class CityController {
 
   @Autowired
-  private CityRepository repository;
+  private CityService service;
 
   @GetMapping
   public Page<CityResponse> list(@PageableDefault(sort = "name") Pageable pagination,
       @RequestParam(required = false) String name, @RequestParam(required = false) States UF) {
-    if (name == null && UF == null) {
-      Page<City> cities = repository.findAll(pagination);
-      return CityResponse.convert(cities);
-    } else if (name != null) {
-      Page<City> cities = repository.findAllByName(name, pagination);
-      return CityResponse.convert(cities);
-    } else {
-      Page<City> cities = repository.findAllByUF(UF, pagination);
-      return CityResponse.convert(cities);
-    }
-
+    return service.getPages(pagination, name, UF);
   }
 
   @PostMapping
   public CityResponse create(@RequestBody CityRequest request) {
-    City city = new City(request);
-    this.repository.save(city);
-    return new CityResponse(city);
+    return service.create(request);
   }
 
   @PutMapping("/{id}")
   public CityResponse update(@PathVariable Long id, @RequestBody CityRequest request) {
-    City city = this.repository.findById(id).get();
-    city.setUF(request.getUF());
-    city.setName(request.getName());
-
-    this.repository.save(city);
-
-    return new CityResponse(city);
+    return service.update(request, id);
   }
 
   @DeleteMapping("/{id}")
   public DeleteResponse delete(@PathVariable Long id) {
-    City city = repository.findById(id).get();
-    this.repository.deleteById(id);
-    DeleteResponse response = new DeleteResponse();
-    response.setResource(city.getName());
-    return response;
+    return service.delete(id);
   }
 
 }

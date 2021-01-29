@@ -8,7 +8,6 @@ public class CustomerRequest {
 
   private String name;
   private String gender;
-  private Integer age;
   private Date birthdate;
   private Long city;
 
@@ -34,14 +33,6 @@ public class CustomerRequest {
 
   public void setGender(String gender) {
     this.gender = gender;
-  }
-
-  public Integer getAge() {
-    return age;
-  }
-
-  public void setAge(Integer age) {
-    this.age = age;
   }
 
   public Date getBirthdate() {

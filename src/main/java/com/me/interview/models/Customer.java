@@ -1,5 +1,8 @@
 package com.me.interview.models;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -10,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.me.interview.requests.CustomerRequest;
@@ -34,12 +38,11 @@ public class Customer {
     TimeZone.setDefault(TimeZone.getTimeZone("BRT"));
     this.name = request.getName();
     this.gender = request.getGender();
-    this.age = request.getAge();
     this.birthdate = request.getBirthdate();
+    setAge();
   }
 
   @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-
   @JoinColumn(name = "city")
   private City city;
 
@@ -71,8 +74,11 @@ public class Customer {
     return age;
   }
 
-  public void setAge(Integer age) {
-    this.age = age;
+  @PreUpdate
+  public void setAge() {
+    long time = ChronoUnit.YEARS.between(birthdate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),
+        LocalDateTime.now());
+    this.age = Integer.valueOf(String.valueOf(time));
   }
 
   public Date getBirthdate() {
